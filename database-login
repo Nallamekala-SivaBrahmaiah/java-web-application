@@ -1,0 +1,4 @@
+kubectl exec -it deployment/mongodb -- mongosh
+  use lakeflipmart
+  show collections
+  db.orders.find().pretty()
