@@ -40,7 +40,8 @@ services:
     depends_on:
       - prometheus
 
-
+docker network create lakeflip-network
+docker volume create mongo-data
 
 
 
