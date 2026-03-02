@@ -39,3 +39,32 @@ services:
       - "3000:3000"
     depends_on:
       - prometheus
+
+
+
+
+
+
+docker run -d \
+  --name mongodb \
+  --network lakeflip-network \
+  -p 27017:27017 \
+  -v mongo-data:/data/db \
+  mongo:6.0
+
+docker run -d \
+  --name backend \
+  --network lakeflip-network \
+  -p 3000:3000 \
+  -e MONGODB_URI=mongodb://mongodb:27017/lakeflipmart \
+  -e PORT=3000 \
+  -e NODE_ENV=production \
+  lakeflip-backend
+
+
+
+docker run -d \
+  --name frontend \
+  --network lakeflip-network \
+  -p 8080:80 \
+  lakeflip-frontend
