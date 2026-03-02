@@ -2,3 +2,40 @@ kubectl exec -it deployment/mongodb -- mongosh
   use lakeflipmart
   show collections
   db.orders.find().pretty()
+
+
+mkdir monitoring
+cd monitoring
+vi prometheus.yml
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+
+  - job_name: "backend"
+    static_configs:
+      - targets: ["68.210.72.109:3000"]
+
+  - job_name: "frontend"
+    static_configs:
+      - targets: ["68.210.88.38:80"]
+vi docker-compose.yml
+version: "3"
+
+services:
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
