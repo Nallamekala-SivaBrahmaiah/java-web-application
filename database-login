@@ -46,6 +46,8 @@ docker volume create mongo-data
 docker build -t lakeflip-backend .
 docker build -t lakeflip-frontend .
 
+docker network create lakeflip-network
+docker volume create mongo-data
 
 docker run -d \
   --name mongodb \
