@@ -32,7 +32,7 @@ pipeline {
                 withSonarQubeEnv('sonarqube') {
                     sh '''
                     mvn sonar:sonar \
-                    -Dsonar.projectKey=Java-Web-Application \
+                    -Dsonar.projectKey=java-web-application \
                     -Dsonar.sources=backend,frontend,src
                     '''
                 }
@@ -62,10 +62,8 @@ pipeline {
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
-
                     sh '''
                     echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-
                     docker push $IMAGE_BACKEND:latest
                     docker push $IMAGE_FRONTEND:latest
                     '''
