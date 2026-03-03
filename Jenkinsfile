@@ -1,47 +1,45 @@
 pipeline {
-    agent any
+agent any
 
-    tools {
-        maven 'mvn-3.8'
+tools {
+    maven 'mvn-3.8'
+}
+
+environment {
+    IMAGE_FRONTEND = "nsbyadav14e/siva_frontend"
+    IMAGE_BACKEND  = "nsbyadav14e/siva_backend"
+    AKS_CLUSTER    = "testcluster01"
+    RESOURCE_GROUP = "cluster"
+}
+
+stages {
+
+    stage('Checkout Code') {
+        steps {
+            git branch: 'main',
+            url: 'https://github.com/Nallamekala-SivaBrahmaiah/Java-Web-Application-.git'
+        }
     }
 
-    environment {
-        IMAGE_FRONTEND = "nsbyadav14e/siva_frontend"
-        IMAGE_BACKEND  = "nsbyadav14e/siva_backend"
-        AKS_CLUSTER    = "testcluster01"
-        RESOURCE_GROUP = "cluster"
+    stage('Build Maven Project') {
+        steps {
+            sh 'mvn clean package'
+        }
     }
 
-    stages {
-
-        stage('Checkout Code') {
-            steps {
-                git branch: 'main',
-                url: 'https://github.com/Siva123569/siva.git'
+    /*
+    stage('SonarQube Code Scan') {
+        steps {
+            withSonarQubeEnv('sonarqube') {
+                sh '''
+                mvn sonar:sonar \
+                -Dsonar.projectKey=Java-Web-Application \
+                -Dsonar.sources=backend,frontend,src
+                '''
             }
         }
-
-        stage('Build Maven Project') {
-            steps {
-                dir('flipkart-project') {
-                    sh 'mvn clean package'
-                }
-            }
-        }
-
-        stage('SonarQube Code Scan') {
-            steps {
-                dir('flipkart-project') {
-                    withSonarQubeEnv('sonarqube') {
-                        sh '''
-                        mvn sonar:sonar \
-                        -Dsonar.projectKey=flipkart-project \
-                        -Dsonar.sources=backend,frontend,src
-                        '''
-                    }
-                }
-            }
-        }
+    }
+    */
 
         stage('Build Backend Docker Image') {
             steps {
