@@ -27,19 +27,17 @@ pipeline {
             }
         }
 
-        // SonarQube Code Scan (Currently Disabled)
-        /*
         stage('SonarQube Code Scan') {
             steps {
                 withSonarQubeEnv('sonarqube') {
                     sh '''
                     mvn sonar:sonar \
-                    -Dsonar.projectKey=Java-Web-Application
+                    -Dsonar.projectKey=java-web-application \
+                    -Dsonar.projectName=java-web-application
                     '''
                 }
             }
         }
-        */
 
         stage('Build Backend Docker Image') {
             steps {
