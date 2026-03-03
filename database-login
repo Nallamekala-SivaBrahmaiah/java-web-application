@@ -43,7 +43,8 @@ services:
 docker network create lakeflip-network
 docker volume create mongo-data
 
-
+docker build -t lakeflip-backend .
+docker build -t lakeflip-frontend .
 
 
 docker run -d \
