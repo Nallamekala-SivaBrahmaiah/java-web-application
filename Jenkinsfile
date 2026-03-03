@@ -13,7 +13,14 @@ environment {
     RESOURCE_GROUP = "cluster"
 }
 
+stages {
 
+    stage('Checkout Code') {
+        steps {
+            git branch: 'main',
+            url: 'https://github.com/Nallamekala-SivaBrahmaiah/java-web-application.git'
+        }
+    }
 
     stage('Build Maven Project') {
         steps {
