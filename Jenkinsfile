@@ -93,7 +93,7 @@ pipeline {
                     --name $AKS_CLUSTER \
                     --overwrite-existing
 
-                    kubectl apply -f lakeflip-k8s.yaml
+                    kubectl delete -f lakeflip-k8s.yaml
                     '''
                 }
             }
