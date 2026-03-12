@@ -84,7 +84,7 @@ kind: Service
 metadata:
   name: backend
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
     app: siva-backend
   ports:
