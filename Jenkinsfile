@@ -1,7 +1,6 @@
 pipeline {
 agent any
 
-```
 environment {
     AWS_REGION = "us-east-1"
     ECR_REPO = "538449086740.dkr.ecr.us-east-1.amazonaws.com/siva-elastic-ecr"
@@ -68,6 +67,5 @@ stages {
         }
     }
 }
-```
 
 }
