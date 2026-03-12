@@ -14,6 +14,12 @@ pipeline {
             }
         }
         
+        stage('Maven Build') {
+            steps {
+                sh 'mvn package'
+            }
+        }
+        
         stage('SonarQube Code Scan') {
             steps {
                 withSonarQubeEnv('sonarqube') {
@@ -41,16 +47,6 @@ pipeline {
                 '''
             }
         }
-
-        stage('Push Images') {
-            steps {
-                sh '''
-                docker push $ECR_REPO:backend
-                docker push $ECR_REPO:frontend
-                '''
-            }
-        }
-
         stage('Trivy Scan Images') {
             steps {
                 sh '''
@@ -58,6 +54,15 @@ pipeline {
                 trivy image --severity HIGH,CRITICAL $ECR_REPO:backend || true
                 echo "Scanning frontend image..."
                 trivy image --severity HIGH,CRITICAL $ECR_REPO:frontend || true
+                '''
+            }
+        }
+
+        stage('Push Images') {
+            steps {
+                sh '''
+                docker push $ECR_REPO:backend
+                docker push $ECR_REPO:frontend
                 '''
             }
         }
