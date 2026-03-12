@@ -13,7 +13,18 @@ pipeline {
                     url: 'https://github.com/Nallamekala-SivaBrahmaiah/python-web-application.git'
             }
         }
-
+        
+        stage('SonarQube Code Scan') {
+            steps {
+                withSonarQubeEnv('sonarqube') {
+                    sh '''
+                    mvn sonar:sonar \
+                    -Dsonar.projectKey=java-web-application \
+                    -Dsonar.sources=backend,frontend,src
+                    '''
+                }
+            }
+            
         stage('Login to ECR') {
             steps {
                 sh '''
