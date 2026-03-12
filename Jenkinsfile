@@ -1,10 +1,10 @@
 pipeline {
 agent any
-
 environment {
     AWS_REGION = "us-east-1"
     ECR_REPO = "538449086740.dkr.ecr.us-east-1.amazonaws.com/siva-elastic-ecr"
     ECR_REGISTRY = "538449086740.dkr.ecr.us-east-1.amazonaws.com"
+    IMAGE_TAG = "${BUILD_NUMBER}"
 }
 
 stages {
@@ -15,13 +15,13 @@ stages {
             url: 'https://github.com/Nallamekala-SivaBrahmaiah/java-web-application.git'
         }
     }
-    
+
     stage('Maven Build') {
         steps {
             sh 'mvn clean package'
         }
     }
-        
+
     stage('Login to ECR') {
         steps {
             sh '''
@@ -34,8 +34,8 @@ stages {
     stage('Build Docker Images') {
         steps {
             sh '''
-            docker build -t $ECR_REPO:backend backend/
-            docker build -t $ECR_REPO:frontend frontend/
+            docker build -t $ECR_REPO:backend-$IMAGE_TAG backend/
+            docker build -t $ECR_REPO:frontend-$IMAGE_TAG frontend/
             '''
         }
     }
@@ -43,8 +43,8 @@ stages {
     stage('Push Images to ECR') {
         steps {
             sh '''
-            docker push $ECR_REPO:backend
-            docker push $ECR_REPO:frontend
+            docker push $ECR_REPO:backend-$IMAGE_TAG
+            docker push $ECR_REPO:frontend-$IMAGE_TAG
             '''
         }
     }
@@ -53,10 +53,10 @@ stages {
         steps {
             sh '''
             echo "Scanning backend image..."
-            trivy image --severity HIGH,CRITICAL $ECR_REPO:backend || true
-            
+            trivy image --severity HIGH,CRITICAL $ECR_REPO:backend-$IMAGE_TAG || true
+
             echo "Scanning frontend image..."
-            trivy image --severity HIGH,CRITICAL $ECR_REPO:frontend || true
+            trivy image --severity HIGH,CRITICAL $ECR_REPO:frontend-$IMAGE_TAG || true
             '''
         }
     }
@@ -66,6 +66,7 @@ stages {
             sh '''
             export KUBECONFIG=/home/ubuntu/.kube/config
             kubectl apply -f jenkins.yaml
+            '''
         }
     }
 }
