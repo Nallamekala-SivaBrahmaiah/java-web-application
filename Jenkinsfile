@@ -21,7 +21,17 @@ stages {
             sh 'mvn clean package'
         }
     }
-    
+    stage('SonarQube Code Scan') {
+        steps {
+            withSonarQubeEnv('sonarqube') {
+                sh '''
+                mvn sonar:sonar \
+               -Dsonar.projectKey=python-web-application \
+               -Dsonar.sources=backend,frontend
+                '''
+                }
+            }
+        
     stage('Login to ECR') {
         steps {
             sh '''
