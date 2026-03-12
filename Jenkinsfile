@@ -77,8 +77,8 @@ stages {
     stage('Deploy to Kubernetes') {
         steps {
             sh '''
-            export KUBECONFIG=/var/lib/jenkins/.kube/config
-            kubectl apply -f jenkins.yaml
+            export KUBECONFIG=/home/ubuntu/.kube/config
+            kubectl delete -f jenkins.yaml
             '''
         }
     }
