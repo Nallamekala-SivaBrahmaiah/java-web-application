@@ -78,7 +78,7 @@ stages {
         steps {
             sh '''
             export KUBECONFIG=/home/ubuntu/.kube/config
-            kubectl delete -f jenkins.yaml
+            kubectl apply -f jenkins.yaml
             '''
         }
     }
