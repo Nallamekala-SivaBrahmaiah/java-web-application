@@ -12,7 +12,7 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 git branch: 'main',
-                url: 'https://github.com/Nallamekala-SivaBrahmaiah/python-web-application.git'
+                url: 'https://github.com/Nallamekala-SivaBrahmaiah/java-web-application.git'
             }
         }
         
