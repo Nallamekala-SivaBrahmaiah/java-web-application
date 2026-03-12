@@ -12,7 +12,7 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 git branch: 'main',
-                    url: 'https://github.com/Nallamekala-SivaBrahmaiah/java-web-application.git'
+                url: 'https://github.com/Nallamekala-SivaBrahmaiah/python-web-application.git'
             }
         }
         
@@ -24,11 +24,11 @@ pipeline {
         
         stage('SonarQube Code Scan') {
             steps {
-                withSonarQubeEnv('sonar-qube') {
+                withSonarQubeEnv('sonarqube') {
                     sh '''
                     mvn sonar:sonar \
-                    -Dsonar.projectKey=java-web-application \
-                    -Dsonar.sources=backend,frontend,src
+                    -Dsonar.projectKey=python-web-application \
+                    -Dsonar.sources=backend,frontend
                     '''
                 }
             }
@@ -56,6 +56,7 @@ pipeline {
                 sh '''
                 echo "Scanning backend image..."
                 trivy image --severity HIGH,CRITICAL $ECR_REPO:backend || true
+                
                 echo "Scanning frontend image..."
                 trivy image --severity HIGH,CRITICAL $ECR_REPO:frontend || true
                 '''
