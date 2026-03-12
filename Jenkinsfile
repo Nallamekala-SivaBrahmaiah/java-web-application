@@ -38,7 +38,15 @@ pipeline {
                 '''
             }
         }
-        
+
+        stage('Push Images') {
+            steps {
+                sh '''
+                docker push $ECR_REPO:backend
+                docker push $ECR_REPO:frontend
+                '''
+            }
+        }
         stage('Trivy Scan Images') {
             steps {
                 sh '''
@@ -50,16 +58,7 @@ pipeline {
                 '''
             }
         }
-
-        stage('Push Images') {
-            steps {
-                sh '''
-                docker push $ECR_REPO:backend
-                docker push $ECR_REPO:frontend
-                '''
-            }
-        }
-            
+    
         stage('Deploy to Kubernetes') {
             steps {
                 sh '''
