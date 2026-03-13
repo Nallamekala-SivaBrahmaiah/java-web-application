@@ -23,18 +23,6 @@ stages {
         }
     }
 
-    stage('SonarQube Code Scan') {
-        steps {
-            withSonarQubeEnv('sonar-qube') {
-                sh '''
-                mvn sonar:sonar \
-                -Dsonar.projectKey=java-web-application \
-                -Dsonar.sources=backend,frontend,src
-                '''
-            }
-        }
-    }
-
     stage('Login to ECR') {
         steps {
             sh '''
