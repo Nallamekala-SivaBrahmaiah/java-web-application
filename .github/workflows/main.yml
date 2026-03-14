@@ -1,0 +1,85 @@
+name: CI/CD Pipeline to AKS
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  IMAGE_TAG: ${{ github.run_number }}
+  DOCKERHUB_REPO: ${{ secrets.DOCKERHUB_USERNAME }}/java-web-application
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1️⃣ Checkout repository
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    # 2️⃣ Setup Java
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: 17
+        distribution: temurin
+
+    # 3️⃣ Maven Build
+    - name: Build Maven Project
+      run: mvn clean package
+
+    # 4️⃣ SonarQube Scan
+    - name: SonarQube scan
+      env:
+        SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
+      run: |
+        mvn sonar:sonar \
+          -Dsonar.projectKey=java-web-application \
+          -Dsonar.host.url=${{ secrets.SONARQUBE_HOST }} \
+          -Dsonar.login=$SONAR_TOKEN \
+          -Dsonar.qualitygate.wait=true \
+          -Dsonar.sources=backend,frontend,src
+
+    # 5️⃣ DockerHub Login
+    - name: DockerHub Login
+      run: |
+        echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+
+    # 6️⃣ Build Docker Images
+    - name: Build Docker Images
+      run: |
+        docker build -t ${{ env.DOCKERHUB_REPO }}:backend-${{ env.IMAGE_TAG }} backend/
+        docker build -t ${{ env.DOCKERHUB_REPO }}:frontend-${{ env.IMAGE_TAG }} frontend/
+
+    # 7️⃣ Push Docker Images
+    - name: Push Docker Images
+      run: |
+        docker push ${{ env.DOCKERHUB_REPO }}:backend-${{ env.IMAGE_TAG }}
+        docker push ${{ env.DOCKERHUB_REPO }}:frontend-${{ env.IMAGE_TAG }}
+
+    # 8️⃣ Trivy Security Scan
+    - name: Trivy Scan
+      run: |
+        trivy image --severity HIGH,CRITICAL ${{ env.DOCKERHUB_REPO }}:backend-${{ env.IMAGE_TAG }} || true
+        trivy image --severity HIGH,CRITICAL ${{ env.DOCKERHUB_REPO }}:frontend-${{ env.IMAGE_TAG }} || true
+
+    # 9️⃣ Azure Login
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    # 🔟 Set AKS Context
+    - name: Set AKS Context
+      run: |
+        az aks get-credentials --resource-group "Azure for Students" --name <AKS_CLUSTER_NAME>
+
+    # 1️⃣1️⃣ Deploy to AKS using lakeflip-k8s.yaml
+    - name: Deploy to AKS
+      run: |
+        kubectl apply -f k8s/lakeflip-k8s.yaml
+        kubectl set image deployment/backend backend=${{ env.DOCKERHUB_REPO }}:backend-${{ env.IMAGE_TAG }}
+        kubectl set image deployment/frontend frontend=${{ env.DOCKERHUB_REPO }}:frontend-${{ env.IMAGE_TAG }}
+        kubectl rollout status deployment/backend
+        kubectl rollout status deployment/frontend
